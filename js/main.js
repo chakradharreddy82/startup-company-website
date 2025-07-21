@@ -13,6 +13,69 @@
 
   // Initiate the wowjs
   new WOW().init();
+    // Back to top button
+  $("#searchButton").on("click", async function () {
+    const keyword = $("#searchInput").val().trim();
+    const $results = $("#searchResults");
+    $results.empty(); // Clear previous results
+
+    if (!keyword) {
+      alert("Please enter a search keyword.");
+      return;
+    }
+
+    try {
+      const response = await $.get(`${BASE_URL}/api/search`, { key: keyword });
+ // Quotes
+      if (Array.isArray(response?.quotes) && response?.quotes.length > 0) {
+        response.quotes.forEach((item) => {
+          $results.append(`
+ <div class="card mb-3 shadow-sm"
+    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+    <div class="card-body">
+      <h5 class="card-title">${item.name}</h5>
+      <p><strong>Email:</strong> ${item.email}</p>
+      <p><strong>Service:</strong> ${item.service}</p>
+      <p><strong>Message:</strong> ${item.message}</p>
+      <small class="text-muted" style="color: rgba(255,255,255,0.5) !important;">
+        Created At: ${new Date(item.createdAt).toLocaleString()}
+      </small>
+    </div>
+  </div>
+        `);
+        });
+      }
+
+      // Contacts
+      if (Array.isArray(response?.contacts) && response?.contacts.length > 0) {
+        response.contacts.forEach((item) => {
+          $results.append(`
+ <div class="card mb-3 shadow-sm"
+    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+    <div class="card-body">
+      <h5 class="card-title">${item.name}</h5>
+      <p><strong>Email:</strong> ${item.email}</p>
+      <p><strong>Service:</strong> ${item.service}</p>
+      <p><strong>Message:</strong> ${item.message}</p>
+      <small class="text-muted" style="color: rgba(255,255,255,0.5) !important;">
+        Created At: ${new Date(item.createdAt).toLocaleString()}
+      </small>
+    </div>
+  </div>
+        `);
+        });
+      }
+    } catch (err) {
+      console.error("Search API error:", err);
+      alert("Something went wrong while searching.");
+    }
+  });
+
+  $("#searchInput").on("keypress", function (e) {
+    if (e.which === 13) {
+      $("#searchButton").click(); // Trigger search
+    }
+  });
   // Contact Form Submission
   $("#contactForm").on("submit", function (e) {
     e.preventDefault();
@@ -35,6 +98,34 @@
       success: function (res) {
         alert("Message sent successfully!");
         $("#contactForm")[0].reset(); // Clear form
+      },
+      error: function (err) {
+        alert("Failed to send message. Please try again.");
+        console.error(err);
+      },
+    });
+  });
+  $("#quoteForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const name = $('[name="name"]').val().trim();
+    const email = $('[name="email"]').val().trim();
+    const service = $('[name="service"]').val();
+    const message = $('[name="message"]').val().trim();
+
+    if (!name || !email || !service || !message || service === "") {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    $.ajax({
+      url: `${BASE_URL}/api/quote`,
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ name, email, service, message }),
+      success: function (res) {
+        alert("Message sent successfully!");
+        $("#quoteForm")[0].reset();
       },
       error: function (err) {
         alert("Failed to send message. Please try again.");
