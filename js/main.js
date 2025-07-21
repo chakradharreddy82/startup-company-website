@@ -13,7 +13,7 @@
 
   // Initiate the wowjs
   new WOW().init();
-    // Contact Form Submission
+  // Contact Form Submission
   $("#contactForm").on("submit", function (e) {
     e.preventDefault();
 
@@ -28,7 +28,7 @@
     }
 
     $.ajax({
-      url: "http://localhost:5000/api/contact",
+      url: `${BASE_URL}/api/contact`,
       method: "POST",
       contentType: "application/json",
       data: JSON.stringify({ name, email, subject, message }),
